@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Simple IPTV Player</title>
+<style>
+body{font-family:Arial,sans-serif;background:#1b1212;color:#fff;margin:0;padding:20px}
+.container{max-width:900px;margin:auto}
+input,button{padding:10px;margin:5px 0;width:100%;box-sizing:border-box}
+button{background:#ff9800;border:none;color:#fff;cursor:pointer}
+ul{list-style:none;padding:0}
+li{display:flex;justify-content:space-between;background:#2a1d1d;padding:8px;margin:4px 0}
+video{width:100%;background:#000;margin-top:10px}
+</style>
+</head>
+<body>
+<div class="container">
+<h2>Simple IPTV Player</h2>
+<input id="url" placeholder="Enter MP4 or M3U8 URL">
+<button onclick="play()">Play</button>
+<video id="v" controls></video>
+<h3>Playlist</h3>
+<button onclick="add()">Add Current URL</button>
+<ul id="list"></ul>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+<script>
+const video=document.getElementById('v');
+const inp=document.getElementById('url');
+let list=JSON.parse(localStorage.getItem('plist')||'[]');
+function render(){
+ let ul=document.getElementById('list'); ul.innerHTML='';
+ list.forEach((u,i)=>{
+  let li=document.createElement('li');
+  li.innerHTML='<span>'+u+'</span>';
+  let d=document.createElement('button'); d.textContent='Play';
+  d.onclick=()=>{inp.value=u;play();}
+  li.appendChild(d); ul.appendChild(li);
+ });
+ localStorage.setItem('plist',JSON.stringify(list));
+}
+function play(){
+ let url=inp.value.trim();
+ if(Hls.isSupported()&&url.endsWith('.m3u8')){
+   let hls=new Hls(); hls.loadSource(url); hls.attachMedia(video);
+ }else{
+   video.src=url;
+ }
+ video.play();
+}
+function add(){
+ if(inp.value.trim()){list.push(inp.value.trim());render();}
+}
+render();
+</script>
+</body></html>
